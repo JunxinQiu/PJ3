@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import echarts from 'echarts/lib/echarts';
+import 'echarts/index';
 import { beijing } from './beijing';
 
 
