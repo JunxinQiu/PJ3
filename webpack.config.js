@@ -57,7 +57,12 @@ module.exports = {
           sourceMap: true
         }
       }]
-    }]
+    }, {
+      test: /\.(png|svg|jpg|gif)$/,
+      use: {
+          loader: 'url-loader'
+      }
+  }]
   },
 
   optimization: {
