@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval' http://* ">
+    <meta http-equiv="Content-Security-Policy" content="default-src http://* https://* data://*; style-src 'self' http://* 'unsafe-inline'; script-src 'self' blob://* 'unsafe-inline' 'unsafe-eval' http://* https://* ">
 </head>
 <body style="background: white;">
     <div id='root'></div>
     <div id='echarts' style="width: 800px; height: 800px;"></div>
-    <script src="https://map.qq.com/api/gljs?v=1.exp&key=BWZBZ-6ESWD-6YW44-PYJMO-PDITF-BOBTA"></script>
+    <script src="https://map.qq.com/api/gljs?v=1.exp&key=BWZBZ-6ESWD-6YW44-PYJMO-PDITF-BOBTA&libraries=tools"></script>
     <script src="../build/main.js" ></script>
 </body>
 </html>
