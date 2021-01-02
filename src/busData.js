@@ -1,12 +1,13 @@
+
 let stationCounter = 0;
 
-const getStationId = () => { stationCounter++; return ['S', stationCounter].join()};
+const getStationId = () => { stationCounter++; return 'S'+ stationCounter;};
 
-const generateBusStop = (x,y) => {
+const generateBusStop = (lat,lng) => {
     return {
         id: getStationId(),
-        x,
-        y
+        lat,
+        lng
     }
 }
 
@@ -59,3 +60,10 @@ export const busData = [
 ];
 
 console.log(busData);
+
+export const busLineGeometries = busData.map(one => {
+    return {
+        styleId: "style_blue",
+        paths: one.stations.map(({lat, lng}) => new TMap.LatLng(lat, lng)),
+    }
+})
