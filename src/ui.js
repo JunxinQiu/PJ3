@@ -37,6 +37,8 @@ export class ControlPanel extends React.Component {
                     <ListItem >💃🏻 开始导航</ListItem>
                     <Divider />
                     <ListItem onClick={this.props.halt}>😴 重设</ListItem>
+                    {/* <Divider />
+                    <ListItem onClick={this.props.measure}>😴 测量</ListItem> */}
                     </List>
               </ThemeProvider>
             </div>

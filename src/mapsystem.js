@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import 'echarts/index';
 import { qmap } from './mapInstance';
-import {busData, busLineGeometries}from './busData';
+import {busData, busLineGeometries, junctionLabelGeometries, junctionMarkerGeometries, junctionRoutes}from './busData';
 import { ControlPanel } from './ui';
 import { eventBus, PopConfirm } from './popconfirm';
 
@@ -46,7 +46,7 @@ class MapSystem extends React.Component {
                 
 			},
 			//折线数据定义
-			geometries: busLineGeometries
+			geometries: junctionRoutes
         });
         console.log(polylineLayer)
 
@@ -65,20 +65,38 @@ class MapSystem extends React.Component {
                     "height": 35,
                     "src": 'https://mapapi.qq.com/web/lbs/javascriptGL/demo/img/markerNew.png',
                 }),
+                "junction": new TMap.MarkerStyle({
+                    "width": 20,
+                    "height": 20,
+                    "src": 'https://mapapi.qq.com/web/lbs/javascriptGL/demo/img/markerNew.png',
+                }),
             },
-            geometries: [
-            //     {
-            //     "id": 'demo',
-            //     "styleId": 'marker',
-            //     "position": new TMap.LatLng(39.984104, 116.307503),
-            //     "properties": {
-            //         "title": "marker"
-            //     }
-            // }
-        ]
+            geometries: junctionMarkerGeometries
+        });
+
+        const labelLayer = new TMap.MultiLabel({
+            id: 'label-layer',
+            map: map, //设置折线图层显示到哪个地图实例中
+            //文字标记样式
+            styles: {
+                'label': new TMap.LabelStyle({
+                    'color': '#000000', //颜色属性
+                    'size': 15, //文字大小属性
+                    'offset': { x: 0, y: 15 }, //文字偏移属性单位为像素
+                    'angle': 0, //文字旋转属性
+                    'alignment': 'center', //文字水平对齐属性
+                    'verticalAlignment': 'middle', //文字垂直对齐属性
+                    'backgroundColor': "red",
+                    'border': 'solid blue',
+
+                })
+            },
+            //文字标记数据
+            geometries: junctionLabelGeometries
         });
         qmap.polylineLayer = polylineLayer;
         qmap.markerLayer = markerLayer;
+        qmap.labelLayer = labelLayer;
     }
 
     measure = () => {
@@ -162,14 +180,14 @@ class MapSystem extends React.Component {
                 paths
             };}))
         }
-        qmap.polylineLayer.setGeometries(busLineGeometries.concat(...geometries));
+        qmap.polylineLayer.setGeometries([].concat(...geometries));
         eventBus.onMessage('用时XX秒')
     }
 
 
     render() {
         return <>
-            <ControlPanel start={this.start} halt={this.halt}/>
+            <ControlPanel start={this.start} halt={this.halt} measure={this.measure}/>
         </>;
     }
 }
