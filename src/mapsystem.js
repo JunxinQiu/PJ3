@@ -109,17 +109,17 @@ class MapSystem extends React.Component {
     }
 
     start = () => {
-        qmap.instance.on('click', this.handleClick);
+        qmap.markerLayer.on('click', this.handleClick);
     }
 
     halt = () => {
         console.log(qmap);
-        qmap.polylineLayer.setGeometries([]);
-        qmap.markerLayer.setGeometries([]);
+        qmap.polylineLayer.setGeometries(junctionRoutes);
+        qmap.markerLayer.setGeometries(junctionMarkerGeometries);
         this.markerCounter = 0;
         this.startPoint = undefined;
         this.endPoint = undefined;
-        qmap.instance.off('click', this.handleClick)
+        qmap.markerLayer.off('click', this.handleClick)
     }
     markerCounter = 0;
     startPoint;
@@ -127,16 +127,16 @@ class MapSystem extends React.Component {
     handleClick = (event) => {
         console.log(event);
         if (!this.markerCounter) {
-            this.startPoint = event.latLng;
+            this.startPoint = event.geometry.id;
             qmap.markerLayer.add({
-                position: event.latLng,
+                position: event.geometry.position,
                 styleId: "start",
             })
             this.markerCounter ++;
         } else if (this.markerCounter === 1) {
-            this.endPoint = event.latLng;
+            this.endPoint = event.geometry.id;
             qmap.markerLayer.add({
-                position: event.latLng,
+                position: event.geometry.position,
                 styleId: "end",
             })
             this.markerCounter++;

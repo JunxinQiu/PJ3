@@ -106,6 +106,7 @@ export const junctionLabelGeometries = junctions.map(([lat, lng], index) => {
 
 export const junctionMarkerGeometries = junctions.map(([lat, lng], index) => {
     return {
+        id: index.toString(),
         'styleId': 'junction', //样式id
         'position': new TMap.LatLng(lat, lng), //标注点位置
     }
