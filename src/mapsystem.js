@@ -3,7 +3,8 @@ import ReactDom from 'react-dom';
 import 'echarts/index';
 import { qmap } from './mapInstance';
 import {busData, busLineGeometries}from './busData';
-
+import { ControlPanel } from './ui';
+import { eventBus, PopConfirm } from './popconfirm';
 
 let styles;
 let polylineLayer;
@@ -12,8 +13,8 @@ class MapSystem extends React.Component {
 
     componentDidMount() {
         const map = new TMap.Map("echarts", {
-            zoom:12, // 设置地图缩放级别
-            center: new TMap.LatLng(31.14, 121.36) // 设置地图中心点坐标
+            zoom:14, // 设置地图缩放级别
+            center: new TMap.LatLng(31.15, 121.35) // 设置地图中心点坐标
         });
         
         // 创建测量工具
@@ -29,7 +30,7 @@ class MapSystem extends React.Component {
 			styles: {
 				'style_blue': new TMap.PolylineStyle({
 					'color': 'rgba(55,119,255,0.9)', //线填充色
-					'width': 2, //折线宽度
+					'width': 3, //折线宽度
 					'lineCap': 'butt' //线端头方式
 				}),
 				'style_red': new TMap.PolylineStyle({
@@ -162,14 +163,16 @@ class MapSystem extends React.Component {
             };}))
         }
         qmap.polylineLayer.setGeometries(busLineGeometries.concat(...geometries));
+        eventBus.onMessage('用时XX秒')
     }
 
 
     render() {
-        return <><button onClick={this.start}>开始画图</button>
-            <button onClick={this.halt}>重置</button>
+        return <>
+            <ControlPanel start={this.start} halt={this.halt}/>
         </>;
     }
 }
 
 ReactDom.render(<MapSystem />, document.querySelector('#root'));
+ReactDom.render(<PopConfirm />, document.querySelector('#popconfirm'))

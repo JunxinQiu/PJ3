@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html style="height: 100%; overflow: hidden;">
 <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src http://* https://* data://*; style-src 'self' http://* 'unsafe-inline'; script-src 'self' blob://* 'unsafe-inline' 'unsafe-eval' http://* https://* ">
+    <meta http-equiv="Content-Security-Policy" content="default-src http://* https://* data://* file://*; style-src 'self' http://* 'unsafe-inline'; script-src 'self' blob://* 'unsafe-inline' 'unsafe-eval' http://* https://* ">
 </head>
-<body style="background: white;">
-    <div id='root'></div>
-    <div id='echarts' style="width: 800px; height: 800px;"></div>
+<body style="background: white; height: 100%">
+    <div id='popconfirm' style="width:100%; height: 100%; z-index: 100; position: absolute; display: none;"></div>
+    <div id='echarts' style="width:70%; height: 100%; float:left; display:inline;"></div>
+    <div id='root' style="width:30%; height: 100%; float:left; display:inline;"></div>
     <script src="https://map.qq.com/api/gljs?v=1.exp&key=BWZBZ-6ESWD-6YW44-PYJMO-PDITF-BOBTA&libraries=tools"></script>
     <script src="../build/main.js" ></script>
 </body>
