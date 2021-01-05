@@ -2,7 +2,15 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import 'echarts/index';
 import { qmap } from './mapInstance';
-import {busData, busLineGeometries, junctionLabelGeometries, junctionMarkerGeometries, junctionRoutes}from './busData';
+import {
+    busData,
+    busLineGeometries, calculateDistance,
+    junctionLabelGeometries,
+    junctionMarkerGeometries,
+    junctionRoutes,
+    junctionWalkable,
+    junctions
+} from './busData';
 import { ControlPanel } from './ui';
 import { eventBus, PopConfirm } from './popconfirm';
 
@@ -127,14 +135,14 @@ class MapSystem extends React.Component {
     handleClick = (event) => {
         console.log(event);
         if (!this.markerCounter) {
-            this.startPoint = event.geometry.id;
+            this.startPoint = event.geometry.id; //记录startpoint为junction的下标值，起点
             qmap.markerLayer.add({
                 position: event.geometry.position,
                 styleId: "start",
             })
             this.markerCounter ++;
         } else if (this.markerCounter === 1) {
-            this.endPoint = event.geometry.id;
+            this.endPoint = event.geometry.id;////记录endpoint为junction的下标值
             qmap.markerLayer.add({
                 position: event.geometry.position,
                 styleId: "end",
@@ -145,9 +153,42 @@ class MapSystem extends React.Component {
     }
 
     startCalculating = () => {
-        let { startPoint, endPoint } = this;
+        let startPoint = Number(this.startPoint);
+        let endPoint = Number(this.endPoint);
         // 计算
-        return this.generateResult();
+        //初始化容器，存放列表，列表内容为起始点到其他所有点的最短路径（也为列表，记录junction下标）以及最短路径值。
+        //循环（当还存在有junction未被遍历时，同时列表没有更新时），对当前的路径的终点，如果其邻接点路径值为∞，则计算与该点距离并保存进容器
+        //如果已经存在路径，计算与该点距离并将其与容器内的最短路径进行比较，若小，更新。
+        let distanceTable = junctions.map( (point,index) =>{
+            return{
+                id:index, //第index个junction
+                distance:Infinity, //距离，初始化
+                routes:[]//放index的空列表 
+            }
+        });
+        distanceTable[startPoint].distance=0;
+        let updateFlag = true;
+        while(updateFlag){
+           updateFlag=false;
+            for(let i = 0; i < distanceTable.length; i++){
+            let currentPoint = distanceTable[i];
+            if (currentPoint.distance == Infinity ){
+                continue;
+            }else if(currentPoint.distance != Infinity){
+                for (let j = 0; j< junctionWalkable[i].length; j++){
+                    let nearbyIndex = junctionWalkable[i][j];
+                        let walkableDistance = calculateDistance(i,nearbyIndex)+currentPoint.distance;
+                        if (walkableDistance < distanceTable[nearbyIndex].distance){
+                            distanceTable[nearbyIndex].distance= walkableDistance;
+                            distanceTable[nearbyIndex].routes= currentPoint.routes.concat(i);
+                            updateFlag=true;
+                        }
+                    }
+                }
+        }
+       }
+        let result = distanceTable[endPoint].routes.concat(endPoint);
+        return this.generateResult(result);
     }
 
     // result的输入格式为：[{
@@ -163,25 +204,16 @@ class MapSystem extends React.Component {
                 paths: [new TMap.LatLng(this.startPoint.lat, this.startPoint.lng), new TMap.LatLng(this.endPoint.lat, this.endPoint.lng)]
             })
         } else {
-            const busStartPoint = busData.find(one => one.name === result[0].name).stations[result[0].startIndex];
-            const busEndPoint = busData.find(one => one.name === result[result.length -1].name).stations[result[result.length-1].endIndex];
-            geometries.push({
+            geometries.push(
+                {
                 styleId: 'style_red',
-                paths: [new TMap.LatLng(this.startPoint.lat, this.startPoint.lng), new TMap.LatLng(busStartPoint.lat, busStartPoint.lng)]
-            }, {
-                styleId: 'style_red',
-                paths: [new TMap.LatLng(this.endPoint.lat, this.endPoint.lng), new TMap.LatLng(busEndPoint.lat, busEndPoint.lng)]
+                paths:result.map( point => {
+                    return new TMap.LatLng(junctions[point][0],junctions[point][1])
+                })
             })
-            geometries.push(result.map(one => {
-                const busLine = busData.find(data => data.name === one.name);
-                const paths = busLine.stations.slice(one.startIndex, one.endIndex).map(({lat, lng}) => (new TMap.LatLng(lat, lng)));
-                return {
-                styleId: 'style_busLine',
-                paths
-            };}))
         }
         qmap.polylineLayer.setGeometries([].concat(...geometries));
-        eventBus.onMessage('用时XX秒')
+        eventBus.onMessage('您的路线是'+'用时XX秒')
     }
 
 

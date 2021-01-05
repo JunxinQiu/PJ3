@@ -73,7 +73,7 @@ const stops = busData.flatMap(one => {
 })
 
 
-const junctions = [[31.162323967896725,121.33235933337892],
+export const junctions = [[31.162323967896725,121.33235933337892],
     [31.158761016853333,121.3343579007169],
     [31.155996074156786,121.33599006486509],
     [31.152632427001116,121.33802194253167],
@@ -145,3 +145,19 @@ export const junctionRoutes = junctionWalkable.flatMap((one, index) => {
         }
     })
 })
+
+export function calculateDistance (index1 , index2){
+    if(junctionWalkable[index1].includes(index2)){
+        let x1 = junctions[index1][0];
+        let x2 = junctions[index2][0];
+        let y1 = junctions[index1][1];
+        let y2 = junctions[index2][1];
+        let result = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))*111000;
+        return result;
+    }else{
+        return false;
+    }
+}
+
+export function getAdjacencyMatrix (indexArray , ){
+}
