@@ -16,6 +16,7 @@ import { eventBus, PopConfirm } from './popconfirm';
 
 let styles;
 let polylineLayer;
+var finalTime = 0;
 class MapSystem extends React.Component {
 
 
@@ -159,6 +160,7 @@ class MapSystem extends React.Component {
         //初始化容器，存放列表，列表内容为起始点到其他所有点的最短路径（也为列表，记录junction下标）以及最短路径值。
         //循环（当还存在有junction未被遍历时，同时列表没有更新时），对当前的路径的终点，如果其邻接点路径值为∞，则计算与该点距离并保存进容器
         //如果已经存在路径，计算与该点距离并将其与容器内的最短路径进行比较，若小，更新。
+        let startTime = new Date().getMilliseconds;
         let distanceTable = junctions.map( (point,index) =>{
             return{
                 id:index, //第index个junction
@@ -188,7 +190,10 @@ class MapSystem extends React.Component {
         }
        }
         let result = distanceTable[endPoint].routes.concat(endPoint);
+        let endTime = new Date().getMilliseconds;
+        finalTime = endTime - startTime;
         return this.generateResult(result);
+        
     }
 
     // result的输入格式为：[{
@@ -213,7 +218,11 @@ class MapSystem extends React.Component {
             })
         }
         qmap.polylineLayer.setGeometries([].concat(...geometries));
-        eventBus.onMessage('您的路线是'+'用时XX秒')
+        let resultRoute = "";
+        for(let i = 0; i < result.length ;i++){
+            resultRoute += "站点" + result[i] + " ";
+        }
+        eventBus.onMessage('您的路线是'+resultRoute+ '用时'+  finalTime + '毫秒')
     }
 
 
