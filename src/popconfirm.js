@@ -73,13 +73,21 @@ export class PopConfirm extends React.Component {
     componentDidMount() {
         eventBus.onMessage = (text) => {
             this.setState({text, open: true})
-            document.querySelector('#popconfirm').setAttribute('style', "width:100%; height: 100%; z-index: 100; position: absolute;")
-            setTimeout(() => {
-                this.setState({open: false});
-                document.querySelector('#popconfirm').setAttribute('style', "width:100%; height: 100%; z-index: 100; position: absolute; display: none;")
-            }, 5000);
+            document.querySelector('#popconfirm').setAttribute('style', "width:100%; height: 100%; z-index: 1009; position: absolute;")
+            // setTimeout(() => {
+            //     this.setState({open: false});
+            //     document.querySelector('#popconfirm').setAttribute('style', "width:100%; height: 100%; z-index: 100; position: absolute; display: none;")
+            // }, 5000);
+        
         }
+
     }
+
+    handleClick = () => {
+    this.setState({open: false});
+     document.querySelector('#popconfirm').setAttribute('style', "width:100%; height: 100%; z-index: 1009; position: absolute; display: none;")
+    }
+
     render() {
         if (!this.state.open) {
             return null
@@ -110,7 +118,7 @@ export class PopConfirm extends React.Component {
                     {this.state.text}
                   </p>
                 </WindowContent>
-                <Button>
+                <Button onClick = {this.handleClick}>
                 OK
                 </Button>
               </Window>

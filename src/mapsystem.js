@@ -16,7 +16,6 @@ import { eventBus, PopConfirm } from './popconfirm';
 
 let styles;
 let polylineLayer;
-var finalTime = 0;
 class MapSystem extends React.Component {
 
 
@@ -80,7 +79,7 @@ class MapSystem extends React.Component {
                     "src": 'https://mapapi.qq.com/web/lbs/javascriptGL/demo/img/markerNew.png',
                 }),
             },
-            geometries: junctionMarkerGeometries
+            geometries: junctionMarkerGeometries.slice()
         });
 
         const labelLayer = new TMap.MultiLabel({
@@ -106,6 +105,12 @@ class MapSystem extends React.Component {
         qmap.polylineLayer = polylineLayer;
         qmap.markerLayer = markerLayer;
         qmap.labelLayer = labelLayer;
+
+        qmap.startCalculating = (start, end) => {
+            this.startPoint = Number(start);
+            this.endPoint = Number(end);
+            this.startCalculating();
+        }
     }
 
     measure = () => {
@@ -123,13 +128,14 @@ class MapSystem extends React.Component {
 
     halt = () => {
         console.log(qmap);
-        qmap.polylineLayer.setGeometries(junctionRoutes);
-        qmap.markerLayer.setGeometries(junctionMarkerGeometries);
-        this.markerCounter = 0;
         this.startPoint = undefined;
         this.endPoint = undefined;
+        this.markerCounter = 0;
+        qmap.polylineLayer.setGeometries(junctionRoutes);
+        qmap.markerLayer.setGeometries(junctionMarkerGeometries.slice());
         qmap.markerLayer.off('click', this.handleClick)
     }
+
     markerCounter = 0;
     startPoint;
     endPoint;
@@ -138,6 +144,7 @@ class MapSystem extends React.Component {
         if (!this.markerCounter) {
             this.startPoint = event.geometry.id; //记录startpoint为junction的下标值，起点
             qmap.markerLayer.add({
+                id:"start",
                 position: event.geometry.position,
                 styleId: "start",
             })
@@ -145,6 +152,7 @@ class MapSystem extends React.Component {
         } else if (this.markerCounter === 1) {
             this.endPoint = event.geometry.id;////记录endpoint为junction的下标值
             qmap.markerLayer.add({
+                id:"end",
                 position: event.geometry.position,
                 styleId: "end",
             })
@@ -160,7 +168,7 @@ class MapSystem extends React.Component {
         //初始化容器，存放列表，列表内容为起始点到其他所有点的最短路径（也为列表，记录junction下标）以及最短路径值。
         //循环（当还存在有junction未被遍历时，同时列表没有更新时），对当前的路径的终点，如果其邻接点路径值为∞，则计算与该点距离并保存进容器
         //如果已经存在路径，计算与该点距离并将其与容器内的最短路径进行比较，若小，更新。
-        let startTime = new Date().getMilliseconds;
+        let startTime = performance.now();
         let distanceTable = junctions.map( (point,index) =>{
             return{
                 id:index, //第index个junction
@@ -187,13 +195,12 @@ class MapSystem extends React.Component {
                         }
                     }
                 }
+            }
         }
-       }
         let result = distanceTable[endPoint].routes.concat(endPoint);
-        let endTime = new Date().getMilliseconds;
-        finalTime = endTime - startTime;
-        return this.generateResult(result);
-        
+        let endTime = performance.now();
+        let finalTime = endTime-startTime;
+        return this.generateResult(result,finalTime);
     }
 
     // result的输入格式为：[{
@@ -201,7 +208,7 @@ class MapSystem extends React.Component {
     // startIndex: number,
     // endIndex: number
     // }]
-    generateResult = (result = []) => {
+    generateResult = (result = [], finalTime) => {
         const geometries = [];
         if (result.length === 0) {
             geometries.push({
